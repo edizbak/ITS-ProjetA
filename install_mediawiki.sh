@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-LOGS_FILE="/tmp/install_jenkins.log"
+LOGS_FILE="/tmp/install_mediawiki.log"
 echo -e "You will find vagrant provisionings logs below"  > ${LOGS_FILE}
 
 sudo apt-get -y update >> ${LOGS_FILE}
@@ -27,11 +27,14 @@ then
   # sudo sed -i -e /\$wgServer/s/localhost\"/192\.168\.99\.31\"/p /etc/mediawiki/LocalSettings.php
 fi
 
-# echo "installation des logiciels à mettre en place sur Mediawiki 2"
-# if [ $1 == "node2" ]
-# then
-
-# fi
+if [ $1 == "node2" ]
+then
+  echo -e "Configuration de l'application Mediawiki 2"
+  sudo php /usr/share/mediawiki/maintenance/install.php --dbname=my_wiki --dbserver="192.168.99.31" \
+  --server=http://192.168.99.32 --installdbuser=wikiuser --installdbpass=wikipwd \
+  --dbuser=wikiuser --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
+  "Wiki Test" "Admin"
+fi
 
 if [ $1 == "master" ]
 then
