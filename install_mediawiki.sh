@@ -15,15 +15,20 @@ fi
 
 if [ $1 == "node1" ]
 then
-  echo -e "Création table et utilisateur pour Mediawiki 1"
+  echo -e "Création table et utilisateurs pour Mediawiki 1 et 2"
   sudo mysql -e "CREATE DATABASE my_wiki;"
-  sudo mysql -e "CREATE USER 'wikiuser'@'localhost' IDENTIFIED BY 'wikipwd';"
-  sudo mysql -e "GRANT ALL PRIVILEGES ON my_wiki.* TO 'wikiuser'@'localhost' WITH GRANT OPTION;"
+  sudo mysql -e "CREATE USER 'wikiuser1'@'localhost' IDENTIFIED BY 'wikipwd';"
+  sudo mysql -e "GRANT ALL PRIVILEGES ON my_wiki.* TO 'wikiuser1'@'localhost' WITH GRANT OPTION;"
+  sudo mysql -e "CREATE USER 'wikiuser2'@'192.168.99.32' IDENTIFIED BY 'wikipwd';"
+  sudo mysql -e "GRANT ALL PRIVILEGES ON my_wiki.* TO 'wikiuser2'@'192.168.99.32' WITH GRANT OPTION;"
   echo -e "Configuration de l'application Mediawiki 1"
   sudo php /usr/share/mediawiki/maintenance/install.php --dbname=my_wiki --dbserver="localhost" \
-  --server=http://192.168.99.31 --installdbuser=wikiuser --installdbpass=wikipwd \
-  --dbuser=wikiuser --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
+  --server=http://192.168.99.31 --installdbuser=wikiuser1 --installdbpass=wikipwd \
+  --dbuser=wikiuser1 --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
   "Wiki Test" "Admin"
+  echo -e "Modification de la configuration de MariaDB pour permettre l'accès à Mediawiki 2"
+  sudo sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
+  sudo systemctl restart mariadb.service
   # sudo sed -i -e /\$wgServer/s/localhost\"/192\.168\.99\.31\"/p /etc/mediawiki/LocalSettings.php
 fi
 
@@ -31,8 +36,8 @@ if [ $1 == "node2" ]
 then
   echo -e "Configuration de l'application Mediawiki 2"
   sudo php /usr/share/mediawiki/maintenance/install.php --dbname=my_wiki --dbserver="192.168.99.31" \
-  --server=http://192.168.99.32 --installdbuser=wikiuser --installdbpass=wikipwd \
-  --dbuser=wikiuser --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
+  --server=http://192.168.99.32 --installdbuser=wikiuser2 --installdbpass=wikipwd \
+  --dbuser=wikiuser2 --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
   "Wiki Test" "Admin"
 fi
 

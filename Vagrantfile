@@ -6,7 +6,7 @@
 
 Vagrant.configure("2") do |config|
   config.vm.define "nginx" do |nginx|
-    nginx.vm.box = "debian/contrib-buster64"
+    nginx.vm.box = "debian/bullseye64"
 	# nginx.vm.box_download_insecure=true
     nginx.vm.network "private_network", type: "static", ip: "192.168.99.30"
     nginx.vm.hostname = "nginx"
