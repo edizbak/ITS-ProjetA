@@ -7,5 +7,10 @@ bin/*
 
 .kitchen/
 .kitchen.local.yml
+
 # Dossiers de travail
 media*/
+
+# Divers à ignorer
+*.pub
+id_*
