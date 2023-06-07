@@ -10,6 +10,7 @@ bin/*
 
 # Dossiers de travail
 media*/
+tmp/
 
 # Divers à ignorer
 *.pub

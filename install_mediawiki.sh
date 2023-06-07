@@ -35,14 +35,19 @@ then
 
   # Mise en commentaire de la ligne 'bind-address' dans mariadb.conf pour permettre accès mediawiki2
   echo -e "Modification de la configuration de MariaDB pour permettre l'accès à Mediawiki 2"
-  sudo sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
-  sudo systemctl restart mariadb.service
+  # tentative éjection sudo vu qu'on doit être  en root
+  # sudo sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
+  sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
+  # sudo systemctl restart mariadb.service
+  systemctl restart mariadb.service
 
   # Création clef d'échange avec mediawiki 2
   echo -e "Création clef d'échange avec mediawiki 2"
   mkdir /vagrant/tmp
   ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
   cp ~/.ssh/id_rsa.pub /vagrant/tmp/id1
+  mkdir /home/vagrant/.ssh
+  cp ~/.ssh/id_rsa.pub /home/vagrant/.ssh
 
   # Job Cron de sauvegarde automatique à 2h00
   echo -e "Création job de sauvegarde automatique"
@@ -62,7 +67,13 @@ then
 
   # Récupération clef d'échange mediawiki1
   echo -e "Récupération clef d'échange mediawiki 1"
-  cat /vagrant/tmp/id1 >> ~/.ssh/authorized_keys
+  mkdir /home/vagrant/.ssh
+  cat /vagrant/tmp/id1 >> /home/vagrant/.ssh/authorized_keys &2> /dev/null
+  if [ ! $? == 0 ]
+  then
+    echo -e "Erreur lors de la récupération de la clef d'échange mediawiki 1,"
+    echo -e "contacter votre administrateur ou lire la documentation"
+  fi
   # ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
 
 fi
