@@ -45,9 +45,38 @@ then
   echo -e "Création clef d'échange avec mediawiki 2"
   mkdir /vagrant/tmp
   ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
-  cp ~/.ssh/id_rsa.pub /vagrant/tmp/id1
-  mkdir /home/vagrant/.ssh
-  cp ~/.ssh/id_rsa.pub /home/vagrant/.ssh
+  if [ ! $? == 0 ]
+  then
+    cp ~/.ssh/id_rsa.pub /vagrant/tmp/id1
+    mkdir /home/vagrant/.ssh
+    cp ~/.ssh/id_rsa.pub /home/vagrant/.ssh && cp ~/.ssh/id_rsa /home/vagrant/.ssh
+  fi
+
+  echo -e "Création deuxième clef"
+  ssh-keygen -t rsa -f ~/.ssh/id_rsa2 -N ""
+  if [ ! $? == 0 ] ; then
+    mv ~/.ssh/id_rsa2 /vagrant/tmp/id2 && mv ~/.ssh/id_rsa2.pub /vagrant/tmp/id2.pub
+    cat /vagrant/tmp/id2.pub >> /home/vagrant/.ssh/authorized_keys
+  fi
+
+  chown vagrant:vagrant /home/vagrant/.ssh/*
+  chmod 600 /home/vagrant/.ssh/*
+
+  # Installation outils de sauvegarde
+  # apt-get
+  
+  # Création script de sauvegarde
+  cat > /root/db_bkup.sh <<EOF
+  #!/bin/bash
+  # Ce script sert à lancer la sauvegarde de la base de donnée, ce qui comprend
+  # l'export des données, la compression du fichier et son envoi sur mediawiki2
+  BKUP_NAME=$(date +"%Y_%m_%d_%I_%M_%p")
+  mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
+   /home/vagrant/bkups/backup_$BKUP_NAME.sql
+  tar cvzf /home/vagrant/bkups/$BKUP_NAME.tar.gz 
+  
+
+EOF
 
   # Job Cron de sauvegarde automatique à 2h00
   echo -e "Création job de sauvegarde automatique"
@@ -73,7 +102,15 @@ then
   then
     echo -e "Erreur lors de la récupération de la clef d'échange mediawiki 1,"
     echo -e "contacter votre administrateur ou lire la documentation"
+  else
+    rm /vagrant/tmp/id1
   fi
+
+  echo -e "Mise en place clef 2"
+  mv /vagrant/tmp/id2 /home/vagrant/id_rsa && mv /vagrant/tmp/id2.pub /home/vagrant/id_rsa.pub
+  chown vagrant:vagrant /home/vagrant/.ssh/*
+  chmod 600 /home/vagrant/.ssh/*
+
   # ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
 
 fi
