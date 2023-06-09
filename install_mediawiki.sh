@@ -14,6 +14,7 @@ if [ $1 == "node1" -o $1 == "node2" ]
 then
   # Installation Mediawiki
   sudo apt-get -y install mediawiki | tee ${LOGS_FILE}  
+  # echo -e "installation mediawiki ignorée pour tests"
 fi
 
 if [ $1 == "node1" ]
@@ -45,8 +46,9 @@ then
   echo -e "Création clef d'échange avec mediawiki 2"
   mkdir /vagrant/tmp
   ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
-  if [ ! $? == 0 ]
+  if [ $? == 0 ]
   then
+    echo -e "génération ok, copie clef"
     cp ~/.ssh/id_rsa.pub /vagrant/tmp/id1
     mkdir /home/vagrant/.ssh
     cp ~/.ssh/id_rsa.pub /home/vagrant/.ssh && cp ~/.ssh/id_rsa /home/vagrant/.ssh
@@ -54,7 +56,8 @@ then
 
   echo -e "Création deuxième clef"
   ssh-keygen -t rsa -f ~/.ssh/id_rsa2 -N ""
-  if [ ! $? == 0 ] ; then
+  if [ $? == 0 ] ; then
+    echo -e "génération ok, copie clef"
     mv ~/.ssh/id_rsa2 /vagrant/tmp/id2 && mv ~/.ssh/id_rsa2.pub /vagrant/tmp/id2.pub
     cat /vagrant/tmp/id2.pub >> /home/vagrant/.ssh/authorized_keys
   fi
@@ -73,7 +76,8 @@ then
   BKUP_NAME=$(date +"%Y_%m_%d_%I_%M_%p")
   mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
    /home/vagrant/bkups/backup_$BKUP_NAME.sql
-  tar cvzf /home/vagrant/bkups/$BKUP_NAME.tar.gz 
+  tar cvzf /home/vagrant/bkups/$BKUP_NAME.tar.gz /home/vagrant/bkups/backup_$BKUP_NAME.sql
+
   
 
 EOF
@@ -107,7 +111,7 @@ then
   fi
 
   echo -e "Mise en place clef 2"
-  mv /vagrant/tmp/id2 /home/vagrant/id_rsa && mv /vagrant/tmp/id2.pub /home/vagrant/id_rsa.pub
+  mv /vagrant/tmp/id2 /home/vagrant/.ssh/id_rsa && mv /vagrant/tmp/id2.pub /home/vagrant/.ssh/id_rsa.pub
   chown vagrant:vagrant /home/vagrant/.ssh/*
   chmod 600 /home/vagrant/.ssh/*
 
