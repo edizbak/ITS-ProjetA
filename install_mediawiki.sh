@@ -78,7 +78,7 @@ sudo mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
 sleep 5
 tar cvzf \${BKUP_DIR}/\$BKUP_NAME.tar.gz \${BKUP_DIR}/backup_\$BKUP_NAME.sql --remove-files
 sleep 3
-if [ ! \$1 == run1 ] ; then
+if [[ ! \$1 == run1 ]] ; then
   rsync -a \${BKUP_DIR}/ vagrant@192.168.99.32:\${BKUP_DIR}
 fi
 echo \$1
