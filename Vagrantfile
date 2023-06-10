@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
       v.cpus = 2
     end
     nginx.vm.provision :shell do |shell|
-      shell.path = "install_mediawiki.sh"
+      shell.path = "create_nginx_lb_rp_ca.sh"
       shell.args = ["master", "192.168.99.10"]
       shell.env = { 'ENABLE_ZSH' => ENV['ENABLE_ZSH'] }
       

@@ -6,15 +6,15 @@ LOGS_FILE="/tmp/install_mediawiki.log"
 echo -e "You will find vagrant provisionings logs below"  > ${LOGS_FILE}
 
 # Mise à jour systèmes pour avoir des paquets frais
-sudo apt-get -y update >> ${LOGS_FILE}
-sudo apt-get -y upgrade >> ${LOGS_FILE}
+apt-get -y update >> ${LOGS_FILE}
+apt-get -y upgrade >> ${LOGS_FILE}
 
 echo "installation des logiciels à mettre en place sur Mediawiki 1 et 2"
 if [ $1 == "node1" -o $1 == "node2" ]
 then
   # Installation Mediawiki
-  sudo apt-get -y install mediawiki | tee ${LOGS_FILE}  
-  # echo -e "installation mediawiki ignorée pour tests"
+  apt-get -y install mediawiki at | tee -a ${LOGS_FILE}  
+  # apt-get install rsync at
 fi
 
 if [ $1 == "node1" ]
@@ -36,21 +36,19 @@ then
 
   # Mise en commentaire de la ligne 'bind-address' dans mariadb.conf pour permettre accès mediawiki2
   echo -e "Modification de la configuration de MariaDB pour permettre l'accès à Mediawiki 2"
-  # tentative éjection sudo vu qu'on doit être  en root
-  # sudo sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
   sed -ie "/bind-add/s/^/# /" /etc/mysql/mariadb.conf.d/50-server.cnf
-  # sudo systemctl restart mariadb.service
   systemctl restart mariadb.service
 
   # Création clef d'échange avec mediawiki 2
   echo -e "Création clef d'échange avec mediawiki 2"
   mkdir /vagrant/tmp
   ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+  # Test code retour pour que le script attende l'exécution de ssh-keygen
   if [ $? == 0 ]
   then
     echo -e "génération ok, copie clef"
     cp ~/.ssh/id_rsa.pub /vagrant/tmp/id1
-    mkdir /home/vagrant/.ssh
+    mkdir /home/vagrant/.ssh 
     cp ~/.ssh/id_rsa.pub /home/vagrant/.ssh && cp ~/.ssh/id_rsa /home/vagrant/.ssh
   fi
 
@@ -69,31 +67,49 @@ then
   # apt-get
   
   # Création script de sauvegarde
-  cat > /root/db_bkup.sh <<EOF
-  #!/bin/bash
-  # Ce script sert à lancer la sauvegarde de la base de donnée, ce qui comprend
-  # l'export des données, la compression du fichier et son envoi sur mediawiki2
-  BKUP_NAME=$(date +"%Y_%m_%d_%I_%M_%p")
-  mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
-   /home/vagrant/bkups/backup_$BKUP_NAME.sql
-  tar cvzf /home/vagrant/bkups/$BKUP_NAME.tar.gz /home/vagrant/bkups/backup_$BKUP_NAME.sql
-
-  
+  cat > /home/vagrant/db_bkup.sh <<EOF
+#!/bin/bash
+# Ce script sert à lancer la sauvegarde de la base de donnée, ce qui comprend
+# l'export et la compression du fichier
+BKUP_NAME=\$(date +"%Y_%m_%d_%I_%M_%p")
+BKUP_DIR=/home/vagrant/bkups
+sudo mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
+ \${BKUP_DIR}/backup_\$BKUP_NAME.sql
+sleep 5
+tar cvzf \${BKUP_DIR}/\$BKUP_NAME.tar.gz \${BKUP_DIR}/backup_\$BKUP_NAME.sql --remove-files
+sleep 3
+if [ ! \$1 == run1 ] ; then
+  rsync -a \${BKUP_DIR}/ vagrant@192.168.99.32:\${BKUP_DIR}
+fi
+echo \$1
+if [[ \$(ls \$BKUP_DIR | grep -c gz) -gt 15 ]] ; then
+  cd \$BKUP_DIR || return
+  rm "\$(ls -t | tail -1)"
+fi
 
 EOF
 
   # Job Cron de sauvegarde automatique à 2h00
   echo -e "Création job de sauvegarde automatique"
+  chmod 740 /home/vagrant/db_bkup.sh
   mkdir /home/vagrant/bkups
-  echo -e '0 2 * * * mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
-  /home/vagrant/bkups/backup_$(date +"%Y_%m_%d_%I_%M_%p").sql' > /etc/cron.d/dbbkup
+
+  # Première exécution sauvegarde pour setup rsync
+  if (/home/vagrant/db_bkup.sh  run1) ; then
+    echo -e "Setup sauvegarde ok"
+    chown vagrant:vagrant /home/vagrant/db_bkup.sh
+    chown vagrant:vagrant /home/vagrant/bkups
+  else
+    echo -e "Echec setup sauvegarde, merci de contacter l'auteur"
+  fi
+  echo -e '0 3 * * * vagrant /home/vagrant/db_bkup.sh' > /etc/cron.d/dbbkup
 fi
 
 if [ $1 == "node2" ]
 then
   # Lancement du script d'install de mediawiki2
   echo -e "Configuration de l'application Mediawiki 2"
-  sudo php /usr/share/mediawiki/maintenance/install.php --dbname=my_wiki --dbserver="192.168.99.31" \
+  php /usr/share/mediawiki/maintenance/install.php --dbname=my_wiki --dbserver="192.168.99.31" \
   --server=http://192.168.99.32 --installdbuser=wikiuser2 --installdbpass=wikipwd \
   --dbuser=wikiuser2 --dbpass=wikipwd --scriptpath=/mediawiki --lang=en --pass=wiki_passwd \
   "Wiki Test" "Admin"
@@ -110,12 +126,19 @@ then
     rm /vagrant/tmp/id1
   fi
 
+  # Copie clef 2
   echo -e "Mise en place clef 2"
   mv /vagrant/tmp/id2 /home/vagrant/.ssh/id_rsa && mv /vagrant/tmp/id2.pub /home/vagrant/.ssh/id_rsa.pub
+  if [[ -e /home/vagrant/.ssh/id_rsa && -e /home/vagrant/.ssh/id_rsa.pub ]] ; then
+    rm -r /vagrant/tmp
+  fi
   chown vagrant:vagrant /home/vagrant/.ssh/*
   chmod 600 /home/vagrant/.ssh/*
 
-  # ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+  # Mise en place dossier sauvegarde
+  mkdir /home/vagrant/bkups
+  chown vagrant:vagrant /home/vagrant/bkups
+
 
 fi
 
