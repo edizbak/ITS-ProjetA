@@ -7,40 +7,50 @@
 Vagrant.configure("2") do |config|
   config.vm.define "nginx" do |nginx|
     nginx.vm.box = "debian/contrib-buster64"
-	# nginx.vm.box_download_insecure=true
     nginx.vm.network "private_network", type: "static", ip: "192.168.99.30"
     nginx.vm.hostname = "nginx"
     nginx.vm.provider "virtualbox" do |v|
       v.name = "nginx"
       v.memory = 2048
-      v.cpus = 2
+      v.cpus = 1
     end
     nginx.vm.provision :shell do |shell|
       shell.path = "create_nginx_lb_rp_ca.sh"
-      shell.args = ["master", "192.168.99.10"]
-      shell.env = { 'ENABLE_ZSH' => ENV['ENABLE_ZSH'] }
+      shell.args = ["master", "192.168.99.30"]
       
     end
   end
-  clients=2
-  ram_client=2048
-  cpu_client=2
-  (1..clients).each do |i|
-    config.vm.define "mediawiki#{i}" do |mediawiki|
-      # mediawiki.vm.box = "debian/contrib-buster64"
-      # test bullseye
-      mediawiki.vm.box = "debian/bullseye64"
-      mediawiki.vm.network "private_network", type: "static", ip: "192.168.99.3#{i}"
-      mediawiki.vm.hostname = "mediawiki#{i}"
-      mediawiki.vm.provider "virtualbox" do |v|
-        v.name = "mediawiki#{i}"
-        v.memory = ram_client
-        v.cpus = cpu_client
-      end
-      mediawiki.vm.provision :shell do |shell|
-        shell.path = "install_mediawiki.sh"
-        shell.args = ["node#{i}", "192.168.99.10"]
-      end
+  config.vm.define "mediawiki1" do |mediawiki1|
+    mediawiki1.vm.box = "debian/bullseye64"
+    mediawiki1.vm.network "private_network", type: "static", ip: "192.168.99.31"
+    mediawiki1.vm.hostname = "mediawiki1"
+    mediawiki1.vm.provider "virtualbox" do |v|
+      v.name = "mediawiki1"
+      v.memory = 2048
+      v.cpus = 2
     end
+    mediawiki1.vm.provision :shell do |shell|
+      shell.path = "install_mediawiki.sh"
+      shell.args = ["node1", "192.168.99.31"]
+      
+    end
+  end
+  config.vm.define "mediawiki2" do |mediawiki2|
+    mediawiki2.vm.box = "debian/bullseye64"
+    mediawiki2.vm.network "private_network", type: "static", ip: "192.168.99.32"
+    mediawiki2.vm.hostname = "mediawiki2"
+    mediawiki2.vm.provider "virtualbox" do |v|
+      v.name = "mediawiki2"
+      v.memory = 2048
+      v.cpus = 2
+	  #Création du disque hd
+	  v.customize ['createhd', '--filename', 'new_disk1.vdi', '--size', '8192']
+	  #Fixer le disque au SATA Controller
+	  v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '2', '--device', '0', '--type', 'hdd', '--medium', 'new_disk1.vdi']  
+    end
+    mediawiki2.vm.provision :shell do |shell|
+      shell.path = "install_mediawiki.sh"
+      shell.args = ["node2", "192.168.99.32"]
+	end
   end
 end

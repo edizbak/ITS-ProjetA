@@ -75,7 +75,7 @@ BKUP_NAME=\$(date +"%Y_%m_%d_%I_%M_%p")
 BKUP_DIR=/home/vagrant/bkups
 sudo mysqldump -u wikiuser1 --password=wikipwd my_wiki > \
  \${BKUP_DIR}/backup_\$BKUP_NAME.sql
-sleep 5
+sleep 3
 tar cvzf \${BKUP_DIR}/\$BKUP_NAME.tar.gz \${BKUP_DIR}/backup_\$BKUP_NAME.sql --remove-files
 sleep 3
 if [[ ! \$1 == run1 ]] ; then
@@ -99,10 +99,47 @@ EOF
     echo -e "Setup sauvegarde ok"
     chown vagrant:vagrant /home/vagrant/db_bkup.sh
     chown vagrant:vagrant /home/vagrant/bkups
+    chown vagrant:vagrant /home/vagrant/bkups/*
   else
     echo -e "Echec setup sauvegarde, merci de contacter l'auteur"
   fi
+
   echo -e '0 3 * * * vagrant /home/vagrant/db_bkup.sh' > /etc/cron.d/dbbkup
+
+  # Création script de restauration
+  cat > /home/vagrant/db_restore.sh <<EOF
+#!/bin/bash
+# Ce script sert à lancer la restauration de la base de données
+BKUP_DIR=/home/vagrant/bkups
+echo -e "Récupération sauvegardes sur mediawiki 2"
+rsync -aP vagrant@192.168.99.32:\${BKUP_DIR}/ \$BKUP_DIR
+if [[ -z \$1 ]] ; then
+ echo -e "Choisir la sauvegarde à restaurer :"
+ ls \$BKUP_DIR | grep gz
+ read saveFile
+ tar xvzf \${BKUP_DIR}/\$saveFile -C / > bkup_file
+else
+ tar xvzf \${BKUP_DIR}/\$1 -C / > bkup_file
+fi
+while [[ ! \$? == 0 ]] ; do
+  echo -e "Nom de fichier incorrect, merci de sélectionner un fichier dans la liste suivante :"
+  ls \$BKUP_DIR | grep gz
+  read saveFile
+  tar xvzf \${BKUP_DIR}/\$saveFile -C / > bkup_file
+done
+Bkup_File="/\$(cat bkup_file)"
+echo -e "Restauration en cours..."
+sudo mysql -u root my_wiki < \$Bkup_File &2> /dev/null
+if [[ ! \$? == 0 ]] ; then
+ sudo mysql -e "CREATE DATABASE my_wiki;"
+ sudo mysql -u root my_wiki < \$Bkup_File &2> /dev/null
+ if [[ ! \$? == 0 ]] ; then
+  echo -e "Echec restauration, merci de contacter l'auteur"
+  exit 1
+ fi
+fi
+
+EOF
 fi
 
 if [ $1 == "node2" ]
@@ -139,6 +176,98 @@ then
   mkdir /home/vagrant/bkups
   chown vagrant:vagrant /home/vagrant/bkups
 
+
+fi
+
+
+if [ $1 == "node2" ]
+then
+ LVMLOGS_FILE="/tmp/mise_en_place_lvm.log"
+ echo -e "You will find LVM provisionings logs below"  > ${LVMLOGS_FILE}
+ #Mise en place d'une solution de stockage LVM:
+ #Vérification de la présence des disques durs
+ echo "Vérification de la présence des disques durs." >> ${LVMLOGS_FILE}
+ sudo lsblk >> ${LVMLOGS_FILE}
+
+ # Installation des commandes de LVM
+ echo "Installation des commandes de LVM." >> ${LVMLOGS_FILE}
+ sudo apt-get -y install lvm2
+ echo $? >> ${LVMLOGS_FILE}
+
+ # On déclare le(s) disque(s) dur(s) virtuel(s) en Volume Physique LVM (PV = Physical Volume)
+ echo "On déclare le(s) disque(s) dur(s) virtuel(s) en Volume Physique LVM." >> ${LVMLOGS_FILE}
+ sudo pvcreate /dev/sdb
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Visualisation des PV
+ echo "Visualisation des PV." >> ${LVMLOGS_FILE}
+ sudo lvmdiskscan >> ${LVMLOGS_FILE}
+ sudo pvdisplay >> ${LVMLOGS_FILE}
+
+ # Création d’un VG (Volume Group)
+ echo "Création d’un VG." >> ${LVMLOGS_FILE}
+ sudo vgcreate vg1 /dev/sdb
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Visualisation des VG
+ echo "Visualisation des VG." >> ${LVMLOGS_FILE}
+ sudo vgdisplay --units=G >> ${LVMLOGS_FILE}
+ sudo vgs >> ${LVMLOGS_FILE}
+
+ # Création des LV (Logical Volume), option -n pour le nom
+ echo "Création de LV part1." >> ${LVMLOGS_FILE}
+ sudo lvcreate -l 70%VG -n part1 vg1
+ echo $? >> ${LVMLOGS_FILE}
+ echo "Création de LV part2." >> ${LVMLOGS_FILE}
+ sudo lvcreate -l 10%VG -n part2 vg1
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Visualisation des LV
+ echo "Visualisation des LV." >> ${LVMLOGS_FILE}
+ sudo lvscan >> ${LVMLOGS_FILE}
+ sudo lvdisplay >> ${LVMLOGS_FILE}
+
+ #  Formatage en EXT4, option -t pour le type de système de fichiers
+ echo "Formatage en EXT4 de part1." >> ${LVMLOGS_FILE}
+ sudo mkfs -t ext4 /dev/vg1/part1
+ echo $? >> ${LVMLOGS_FILE}
+ echo "Formatage en EXT4 de part2." >> ${LVMLOGS_FILE}
+ sudo mkfs -t ext4 /dev/vg1/part2
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Création des points de montage
+ echo "Création du point de montage de part1." >> ${LVMLOGS_FILE}
+ sudo mkdir /my_lvm_volume1
+ echo $? >> ${LVMLOGS_FILE}
+ echo "Création du point de montage de part2." >> ${LVMLOGS_FILE}
+ sudo mkdir /my_lvm_volume2
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Montage du système de fichiers, sur les points de montage
+ echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume1." >> ${LVMLOGS_FILE}
+ sudo mount /dev/vg1/part1 /my_lvm_volume1
+ echo $? >> ${LVMLOGS_FILE}
+ echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume2." >> ${LVMLOGS_FILE}
+ sudo mount /dev/vg1/part2 /my_lvm_volume2
+ echo $? >> ${LVMLOGS_FILE}
+
+ # Modification du fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation
+ echo "Modification du fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation" >> ${LVMLOGS_FILE}
+ file="/etc/fstab"
+ echo $? >> ${LVMLOGS_FILE}
+
+ echo "Copie du morceau de ligne du fichier /etc/fstab depuis <ext4> et jusqu'à la fin de la même ligne." >> ${LVMLOGS_FILE}
+ text=$(sed -n 's/.*\(ext4[[:space:]]*.*\)$/\1/p' $file)
+ echo $? >> ${LVMLOGS_FILE}
+
+ echo "Les nouvelles lignes qu'on doit ajouter." >> ${LVMLOGS_FILE}
+ line1="/dev/vg1/part1 /my_lvm_volume1 $text"
+ line2="/dev/vg1/part2 /my_lvm_volume2 $text"
+ echo $? >> ${LVMLOGS_FILE}
+
+ echo "Les nouvelles lignes sont mises dans le fichier /etc/fstab, après la ligne que commence par UUID." >> ${LVMLOGS_FILE}
+ sudo sed -i "/^UUID/ a\\$line1\n$line2" $file
+ echo $? >> ${LVMLOGS_FILE}
 
 fi
 
