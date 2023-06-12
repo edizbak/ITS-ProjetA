@@ -62,7 +62,7 @@ Si on connaît déjà le titre du fichier de backup à restaurer, on peut la lan
 ```
 ./db_restore.sh <nom_de_fichier>
 ```  
-* Il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
+* Concernant **LVM**, il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
 S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir le FS en même temps avec l'option -r. Exemple, avec la syntaxe:  
 ```sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>```  
 exemple:  
