@@ -193,8 +193,8 @@ then
  echo "Vérification de la présence des disques durs." >> ${LVMLOGS_FILE}
  lsblk >> ${LVMLOGS_FILE}
 
- # Installation des commandes de LVM
- echo "Installation des commandes de LVM." >> ${LVMLOGS_FILE}
+ # Installation du package LVM
+ echo "Installation du package LVM." >> ${LVMLOGS_FILE}
  apt-get -y install lvm2
  echo $? >> ${LVMLOGS_FILE}
 
