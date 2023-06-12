@@ -75,7 +75,7 @@ sed -i -E '3 a\ ' default.conf
 sed -i -E '4 s/[[:space:]]*/    keepalive_timeout 70;/' default.conf    
 sed -i -E '4 a\ ' default.conf    
 sed -i -E '5 a\ ' default.conf
-sed -i -E '6 s/[[:space:]]*/    ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;/' default.conf
+sed -i -E '6 s/[[:space:]]*/    ssl_protocols TLSv1.2 TLSv1.3;/' default.conf
 sed -i -E '6 a\ ' default.conf 
 sed -i -E '7 s/[[:space:]]*/    ssl_ciphers AES128-SHA:AES256-SHA:RC4-SHA:DES-CBC3-SHA:RC4-MD5;/' default.conf  
 sed -i -E '7 a\ ' default.conf 
