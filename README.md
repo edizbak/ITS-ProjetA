@@ -165,11 +165,12 @@ Voir dans le Vagrantfile les lignes 46 jusqu'à 49.
 
 Ensuite, nous avons implémenté une solution de stockage LVM sur la VM Mediawiki2 avec:
 
-1 disque dur virtuel en Volume Physique LVM dedans le VG (Volume Group)
-
-et 2 LV (Logical Volume) dedans le VG (Volume Group).
+1 disque dur virtuel en Volume Physique LVM dedans le VG (Volume Group) et 2 LV (Logical Volume) dedans le VG (Volume Group).
 
 Dans la dernière étape, nous avons modifié le fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation
+
+
+
 
 LVMLOGS_FILE="/tmp/mise_en_place_lvm.log"
 
