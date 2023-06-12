@@ -398,9 +398,11 @@ S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut a
 
 
 Le défi rencontré: il arrive parfois (aprés exécuter plusieurs fois les commandes vagrant up et vagrant destroy) avoir un erreur pendant la création d'un disque dur virtuel de façon automatique via le lignes de commandes placées dans le fichier Vagrantfile, que nous informe que le nom du nouveau disque dur virtuel que nous voulons créer a déjà été créé. Voir la photo en pièce jointe du l'erreur. Dans cette situation, il faut récupérer une liste complète de tous les disques durs virtuels que sont stockés dans la configuration globale de Virtual Box, (noms de fichiers et les UUID de chaque disque virtuel) à l'aide de la commande suivante :
+   
    vboxmanage list hdds
    
    Et ensuite on peut supprimer une entrée de la liste et rendre à nouveau disponible le nom du fichier, avec la commande suivante :
+   
    vboxmanage closemedium disk <uuid> --delete
    
    Après éxecuter cette commande, nous pouvons essayer de créer à nouveau un nouveau disque dur virtuel avec le même nom de fichier.
