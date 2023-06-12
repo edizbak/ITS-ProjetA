@@ -140,6 +140,10 @@ if [[ ! \$? == 0 ]] ; then
 fi
 
 EOF
+
+  chmod 740 /home/vagrant/db_restore.sh
+  chown vagrant:vagrant /home/vagrant/db_restore.sh
+
 fi
 
 if [ $1 == "node2" ]

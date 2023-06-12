@@ -40,8 +40,28 @@ git clone https://github.com/edizbak/ITS-ProjetA.git
 * soit on utilise notre **IDE** intégrant **git** pour cloner le repo (en n'oubliant pas de se placer dans le dossier *Mon Projet*) :  
 ![Clone via IDE](/.image/doss3.png "IDE intégrant git")  
 * et enfin on peut lancer la commande ```vagrant up``` dans une invite **Powershell** ou **Terminal**, *en faisant bien attention à s'être préalablement placé dans le dossier* **ITS-ProjetA** *!* :  
-[Vagrant up](/.image/up.png)  
+![Vagrant up](/.image/up.png)  
 * si tout s'est bien déroulé (attendre le retour du prompt **Powershell**) on peut se connecter à notre application **Mediawiki** via l'URL https://192.168.99.30/mediawiki :  
+![URL](/.image/index.png)
+![Mediawiki disponible](/.image/accueil.png "Accueil Mediawiki")  
+On note l'alerte de sécurité qui est dûe au fait que notre certificat de sécurité est auto-signé ; c'est normal et il n'y a pas de souci à se faire.
+
+## Etapes - Exploitation  
+* pour gérer nos machines, on peut se connecter via **ssh** en spécifiant le nom de la machine à laquelle on souhaite se connecter, par exemple *mediawiki1* :  
+```vagrant ssh mediawiki1```  
+* les 3 machines disponibles sont *nginx, mediawiki1* et *mediawiki2*  
+* une sauvegarde automatique de la base de données est activée par défaut et se lance à 3h00 tous les jours, mais on peut également la lancer manuellement **uniquement sur mediawiki1** après s'être connecté en tapant la commande  
+```
+./db_bkup.sh
+```  
+* enfin, on peut lancer une restauration de la base de données toujours en étant connecté sur *mediawiki1* en tapant la commande  
+```
+./db_restore.sh
+```  
+Si on connaît déjà le titre du fichier de backup à restaurer, on peut la lancer ainsi :  
+```
+./db_restore.sh <nom_de_fichier>
+```  
 
 
 # Jour 1
