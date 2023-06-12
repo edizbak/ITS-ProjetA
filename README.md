@@ -267,7 +267,7 @@ then
 
  sed -i "/^UUID/ a\\$line1\n$line2" $file
 
- echo \$? >> ${LVMLOGS_FILE}
+ echo $? >> ${LVMLOGS_FILE}
 
 
 
