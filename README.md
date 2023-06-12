@@ -107,7 +107,7 @@ then
 
  echo "Vérification de la présence des disques durs." >> ${LVMLOGS_FILE}
 
- sudo lsblk >> ${LVMLOGS_FILE}
+ lsblk >> ${LVMLOGS_FILE}
 
 
 
@@ -115,7 +115,7 @@ then
 
  echo "Installation des commandes de LVM." >> ${LVMLOGS_FILE}
 
- sudo apt-get -y install lvm2
+ apt-get -y install lvm2
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -125,7 +125,7 @@ then
 
  echo "On déclare le(s) disque(s) dur(s) virtuel(s) en Volume Physique LVM." >> ${LVMLOGS_FILE}
 
- sudo pvcreate /dev/sdb
+ pvcreate /dev/sdb
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -135,9 +135,9 @@ then
 
  echo "Visualisation des PV." >> ${LVMLOGS_FILE}
 
- sudo lvmdiskscan >> ${LVMLOGS_FILE}
+ lvmdiskscan >> ${LVMLOGS_FILE}
 
- sudo pvdisplay >> ${LVMLOGS_FILE}
+ pvdisplay >> ${LVMLOGS_FILE}
 
 
 
@@ -145,7 +145,7 @@ then
 
  echo "Création d’un VG." >> ${LVMLOGS_FILE}
 
- sudo vgcreate vg1 /dev/sdb
+ vgcreate vg1 /dev/sdb
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -155,9 +155,9 @@ then
 
  echo "Visualisation des VG." >> ${LVMLOGS_FILE}
 
- sudo vgdisplay --units=G >> ${LVMLOGS_FILE}
+ vgdisplay --units=G >> ${LVMLOGS_FILE}
 
- sudo vgs >> ${LVMLOGS_FILE}
+ vgs >> ${LVMLOGS_FILE}
 
 
 
@@ -165,13 +165,13 @@ then
 
  echo "Création de LV part1." >> ${LVMLOGS_FILE}
 
- sudo lvcreate -l 70%VG -n part1 vg1
+ lvcreate -l 70%VG -n part1 vg1
 
  echo $? >> ${LVMLOGS_FILE}
 
  echo "Création de LV part2." >> ${LVMLOGS_FILE}
 
- sudo lvcreate -l 10%VG -n part2 vg1
+ lvcreate -l 10%VG -n part2 vg1
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -181,9 +181,9 @@ then
 
  echo "Visualisation des LV." >> ${LVMLOGS_FILE}
 
- sudo lvscan >> ${LVMLOGS_FILE}
+ lvscan >> ${LVMLOGS_FILE}
 
- sudo lvdisplay >> ${LVMLOGS_FILE}
+ lvdisplay >> ${LVMLOGS_FILE}
 
 
 
@@ -191,13 +191,13 @@ then
 
  echo "Formatage en EXT4 de part1." >> ${LVMLOGS_FILE}
 
- sudo mkfs -t ext4 /dev/vg1/part1
+ mkfs -t ext4 /dev/vg1/part1
 
  echo $? >> ${LVMLOGS_FILE}
 
  echo "Formatage en EXT4 de part2." >> ${LVMLOGS_FILE}
 
- sudo mkfs -t ext4 /dev/vg1/part2
+ mkfs -t ext4 /dev/vg1/part2
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -207,13 +207,13 @@ then
 
  echo "Création du point de montage de part1." >> ${LVMLOGS_FILE}
 
- sudo mkdir /my_lvm_volume1
+ mkdir /my_lvm_volume1
 
  echo $? >> ${LVMLOGS_FILE}
 
  echo "Création du point de montage de part2." >> ${LVMLOGS_FILE}
 
- sudo mkdir /my_lvm_volume2
+ mkdir /my_lvm_volume2
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -223,13 +223,13 @@ then
 
  echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume1." >> ${LVMLOGS_FILE}
 
- sudo mount /dev/vg1/part1 /my_lvm_volume1
+ mount /dev/vg1/part1 /my_lvm_volume1
 
  echo $? >> ${LVMLOGS_FILE}
 
  echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume2." >> ${LVMLOGS_FILE}
 
- sudo mount /dev/vg1/part2 /my_lvm_volume2
+ mount /dev/vg1/part2 /my_lvm_volume2
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -265,7 +265,7 @@ then
 
  echo "Les nouvelles lignes sont mises dans le fichier /etc/fstab, après la ligne que commence par UUID." >> ${LVMLOGS_FILE}
 
- sudo sed -i "/^UUID/ a\\$line1\n$line2" $file
+ sed -i "/^UUID/ a\\$line1\n$line2" $file
 
  echo $? >> ${LVMLOGS_FILE}
 
@@ -273,6 +273,7 @@ then
 
 fi
 
+   
 S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir
 
  le FS en même temps avec l'option -r. Exemple, avec la syntaxe:
@@ -283,15 +284,15 @@ sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>
 
 exemple:
 
-sudo lvextend -l 10%VG /dev/vg1/part2
+sudo lvextend -r -l 10%VG /dev/vg1/part2
 
-sudo lvextend -L +1G /dev/vg1/part2
-
-
+sudo lvextend -r -L +1G /dev/vg1/part2
 
 
 
-S'il y n'a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
+
+
+S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
 
 1. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM
 
@@ -305,7 +306,7 @@ S'il y n'a pas suffisamment d'espace de stockage disponible sur le VG: on peut a
 
  exemple: 
 
- sudo lvextend --size +200G /dev/vg1/part2
+ sudo lvextend --size +10G /dev/vg1/part2
 
 4. Et ensuite augmenter la taille de la partition, qu’ils contiennent
 
