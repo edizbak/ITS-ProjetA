@@ -16,3 +16,5 @@ tmp/
 *.pub
 id_*
 *.vdi
+LVM/
+*.bkup
