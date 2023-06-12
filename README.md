@@ -1,12 +1,48 @@
-# Projet_A_ITS
+# Projet A - ITS
 
-Ce projet vise à la mise en place d'un environnement dynamique automatisé pour Mediawiki
-# Environnement cible
+## Contexte  
+Ce projet vise à la mise en place d'un environnement virtualisé déployé automatiquement pour **Mediawiki**. L'objectif est de mettre en place  l'architecture suivante :  
+![Architecture cible](/.image/archi.png)  
 
-Le but est de mettre en place 3 machines qui seront configurées via un "script Vagrant :
+## Environnement cible  
+On va donc mettre en place 3 machines qui seront configurées via un script Vagrant :  
+    * un load balancer/reverse proxy **Nginx**  
+    * deux serveurs applicatifs **Mediawiki**  
+    * une base de données **MariaDB** (hébergée sur l'un des serveurs applicatifs)  
+  
+# Contributeurs  
+[Jonathan](https://github.com/edizbak "edizbak")  
+[Jorge](https://github.com/Jrgds "Jrgds")  
+[Tigran](https://github.com/Tigran69LYON "Tigran69LYON")  
+[Yousra](https://github.com/youyou07 "youyou07")  
 
-    * un load balancer nginx
-    * deux serveurs applicatifs mediawiki
+# Problématique  
+Comme nous disposions d'un temps limité, nous nous sommes répartis les tâches à effectuer de manière à disposer d'une solution fonctionnelle au bout d'une semaine de développement.  
+Un déroulé des actions entreprises par chacun est disponible [en seconde partie de ce readme](#part2)  
+
+# Installation
+## Pré-requis
+Pour pouvoir utiliser ce projet il vous faut avoir installé sur votre machine :  
+* [Vagrant](https://developer.hashicorp.com/vagrant/downloads) ver. 2.36
+* [VirtualBox](https://www.virtualbox.org/wiki/Download_Old_Builds_6_1) ver. 6.1
+* [git](https://git-scm.com/downloads) ou un IDE intégrant git (par exemple [VSCode](https://code.visualstudio.com/Download))  
+
+## Étapes - Installation
+* Premièrement, on créé un dossier dans lequel on installera le projet, par exemple dans *Documents* :  
+![Dossier "Mon Projet"](/.image/doss1.png "Dossier projet")  
+* Ensuite, soit on se place dans ce dossier avec **git bash** puis on clone le repo :  
+![Git Bash here](/.image/doss2.png "Git Bash here")  
+![Copie URL repo](/.image/git1.png "Copie URL")  
+```
+git clone https://github.com/edizbak/ITS-ProjetA.git
+```
+![Clonage](/.image/git2.png "git clone")  
+* soit on utilise notre **IDE** intégrant **git** pour cloner le repo (en n'oubliant pas de se placer dans le dossier *Mon Projet*) :  
+![Clone via IDE](/.image/doss3.png "IDE intégrant git")  
+* et enfin on peut lancer la commande ```vagrant up``` dans une invite **Powershell** ou **Terminal**, *en faisant bien attention à s'être préalablement placé dans le dossier* **ITS-ProjetA** *!* :  
+[Vagrant up](/.image/up.png)  
+* si tout s'est bien déroulé (attendre le retour du prompt **Powershell**) on peut se connecter à notre application **Mediawiki** via l'URL https://192.168.99.30/mediawiki :  
+
 
 # Jour 1
 
