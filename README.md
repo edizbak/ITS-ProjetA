@@ -75,7 +75,7 @@ vagrant@nginx:~$ curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
 
 vagrant@nginx:~$ gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
 
-* LVM
+# LVM
 
 Avant d'implémenter une solution de stockage LVM, nous avons créé un disque dur virtuel supplémentaire avec la taille 8GB et sur la VM Mediawiki2.
 
