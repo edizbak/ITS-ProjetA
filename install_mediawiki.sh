@@ -187,68 +187,68 @@ then
  #Mise en place d'une solution de stockage LVM:
  #Vérification de la présence des disques durs
  echo "Vérification de la présence des disques durs." >> ${LVMLOGS_FILE}
- sudo lsblk >> ${LVMLOGS_FILE}
+ lsblk >> ${LVMLOGS_FILE}
 
  # Installation des commandes de LVM
  echo "Installation des commandes de LVM." >> ${LVMLOGS_FILE}
- sudo apt-get -y install lvm2
+ apt-get -y install lvm2
  echo $? >> ${LVMLOGS_FILE}
 
  # On déclare le(s) disque(s) dur(s) virtuel(s) en Volume Physique LVM (PV = Physical Volume)
  echo "On déclare le(s) disque(s) dur(s) virtuel(s) en Volume Physique LVM." >> ${LVMLOGS_FILE}
- sudo pvcreate /dev/sdb
+ pvcreate /dev/sdb
  echo $? >> ${LVMLOGS_FILE}
 
  # Visualisation des PV
  echo "Visualisation des PV." >> ${LVMLOGS_FILE}
- sudo lvmdiskscan >> ${LVMLOGS_FILE}
- sudo pvdisplay >> ${LVMLOGS_FILE}
+ lvmdiskscan >> ${LVMLOGS_FILE}
+ pvdisplay >> ${LVMLOGS_FILE}
 
  # Création d’un VG (Volume Group)
  echo "Création d’un VG." >> ${LVMLOGS_FILE}
- sudo vgcreate vg1 /dev/sdb
+ vgcreate vg1 /dev/sdb
  echo $? >> ${LVMLOGS_FILE}
 
  # Visualisation des VG
  echo "Visualisation des VG." >> ${LVMLOGS_FILE}
- sudo vgdisplay --units=G >> ${LVMLOGS_FILE}
- sudo vgs >> ${LVMLOGS_FILE}
+ vgdisplay --units=G >> ${LVMLOGS_FILE}
+ vgs >> ${LVMLOGS_FILE}
 
  # Création des LV (Logical Volume), option -n pour le nom
  echo "Création de LV part1." >> ${LVMLOGS_FILE}
- sudo lvcreate -l 70%VG -n part1 vg1
+ lvcreate -l 50%VG -n part1 vg1
  echo $? >> ${LVMLOGS_FILE}
  echo "Création de LV part2." >> ${LVMLOGS_FILE}
- sudo lvcreate -l 10%VG -n part2 vg1
+ lvcreate -L 1G -n part2 vg1
  echo $? >> ${LVMLOGS_FILE}
 
  # Visualisation des LV
  echo "Visualisation des LV." >> ${LVMLOGS_FILE}
- sudo lvscan >> ${LVMLOGS_FILE}
- sudo lvdisplay >> ${LVMLOGS_FILE}
+ lvscan >> ${LVMLOGS_FILE}
+ lvdisplay >> ${LVMLOGS_FILE}
 
  #  Formatage en EXT4, option -t pour le type de système de fichiers
  echo "Formatage en EXT4 de part1." >> ${LVMLOGS_FILE}
- sudo mkfs -t ext4 /dev/vg1/part1
+ mkfs -t ext4 /dev/vg1/part1
  echo $? >> ${LVMLOGS_FILE}
  echo "Formatage en EXT4 de part2." >> ${LVMLOGS_FILE}
- sudo mkfs -t ext4 /dev/vg1/part2
+ mkfs -t ext4 /dev/vg1/part2
  echo $? >> ${LVMLOGS_FILE}
 
  # Création des points de montage
  echo "Création du point de montage de part1." >> ${LVMLOGS_FILE}
- sudo mkdir /my_lvm_volume1
+ mkdir /my_lvm_volume1
  echo $? >> ${LVMLOGS_FILE}
  echo "Création du point de montage de part2." >> ${LVMLOGS_FILE}
- sudo mkdir /my_lvm_volume2
+ mkdir /my_lvm_volume2
  echo $? >> ${LVMLOGS_FILE}
 
  # Montage du système de fichiers, sur les points de montage
  echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume1." >> ${LVMLOGS_FILE}
- sudo mount /dev/vg1/part1 /my_lvm_volume1
+ mount /dev/vg1/part1 /my_lvm_volume1
  echo $? >> ${LVMLOGS_FILE}
  echo "Montage du système de fichiers, sur le point de montage de my_lvm_volume2." >> ${LVMLOGS_FILE}
- sudo mount /dev/vg1/part2 /my_lvm_volume2
+ mount /dev/vg1/part2 /my_lvm_volume2
  echo $? >> ${LVMLOGS_FILE}
 
  # Modification du fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation
@@ -266,7 +266,7 @@ then
  echo $? >> ${LVMLOGS_FILE}
 
  echo "Les nouvelles lignes sont mises dans le fichier /etc/fstab, après la ligne que commence par UUID." >> ${LVMLOGS_FILE}
- sudo sed -i "/^UUID/ a\\$line1\n$line2" $file
+ sed -i "/^UUID/ a\\$line1\n$line2" $file
  echo $? >> ${LVMLOGS_FILE}
 
 fi
