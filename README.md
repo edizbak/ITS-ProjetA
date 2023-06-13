@@ -88,6 +88,8 @@ sudo lvextend --size +10G /dev/vg1/part2
 sudo resize2fs /dev/vg1/part2
 ```
 
+---
+# Déroulé du projet
 # Jour 1
 
 ## Configuration initiale des VM
@@ -104,12 +106,12 @@ Une première erreur apparaît : Erreur Vagrant
 
 ![Alt text](image-1.png)
 
-Une rapide recherche google nous apprend que le problème vient d'un certificat self-signed comme il en existe tant... Des détails ici
+Une rapide recherche google nous apprend que le problème vient d'un certificat self-signed comme il en existe tant... [Des détails ici](https://github.com/edizbak/projet_A_ITS/blob/master/stories/certif_kaspersky.md)
 
 La solution retenue est d'ajouter une ligne à la config dans Vagrantfile :
-
+```
 mediawiki.vm.box_download_insecure=true
-
+```
 Probablement à proscrire en contexte réel si on n'est pas certain de l'identité du serveur contacté par vagrant pour télécharger l'image désirée
 
 On relance l'exécution du Vagrantfile pour tomber sur une nouvelle erreur : 
@@ -118,42 +120,32 @@ On relance l'exécution du Vagrantfile pour tomber sur une nouvelle erreur :
 Celle-ci semble provoquée par le délai induit par l'UAC Windows, erreur bénigne donc. On détruit l'environnement, on relance, et la troisième tentative aboutit enfin :
 ![Alt text](image-1.png)
 
-Capture VirtualBox
+On s'auto-congratule modérément et on commence les recherches sur l'installation de Mediawiki pour le lendemain... Ça va être sympa, on va devoir installer PHP, une base de donnée, extraire plein de fichiers, bref il va y avoir de quoi faire !  
 
-On s'auto-congratule modérément et on commence les recherches sur l'installation de Mediawiki pour le lendemain... Ça va être sympa, on va devoir installer PHP, une base de donnée, extraire plein de fichiers, bref il va y avoir de quoi faire !
-Jour 2
-# On reprend les tentatives d'installation de Mediawiki
+# Jour 2
+## On reprend les tentatives d'installation de Mediawiki
 Avec l'esprit un peu plus clair, on installe les dépendances sans spécifier de numéro de version et le script arrête de se plaindre :
-
+```
 sudo apt-get install php php-apcu php-common php-intl php-json php-mbstring php-mysql php-xml mariadb-server apache2
-
+```
 # Jour 3
 # Installation de Mediawiki
+Constatant qu'il reste une partie configuration de **Nginx** pour **PHP** qui nous échappe complètement, décision est prise d'abandonner **CentOS 7** pour utiliser à la place une distribution **Debian** qui comprend un paquet **Mediawiki** qui configure **Apache, MariaDB et PHP** automatiquement.
 
-# Instalation MariaDB
-The MariaDB database engine is one of the most commonly-used database backends for MediaWiki. Since MariaDB is the relational database management system used by the Wikimedia Foundation websites, it is well-supported in MediaWiki. 
-
-vagrant@mediawiki1:~$ sudo mysql
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 47
-Server version: 10.3.39-MariaDB-0+deb10u1 Debian 10
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]>
-
-# INstalatopn NGINX
-
-C:\Users\user18\Documents\Projet_A_ITS>vagrant ssh nginx
-
-vagrant@nginx:~$ sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
-
-vagrant@nginx:~$ curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
->     | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
-
-vagrant@nginx:~$ gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
+# Installation NGINX
+On récupère une version plus récente de **Nginx** que celle présente dans les paquets **Debian**, :  
+```
+sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
+    | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+http://nginx.org/packages/mainline/debian `lsb_release -cs` nginx" \
+    | sudo tee /etc/apt/sources.list.d/nginx.list
+echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" \
+    | sudo tee /etc/apt/preferences.d/99nginx
+sudo apt update
+sudo apt install nginx
+```
 
 # LVM
 
