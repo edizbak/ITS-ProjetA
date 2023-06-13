@@ -145,7 +145,7 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 MariaDB [(none)]>
 
-# INstalatopn NGINX
+# Installation NGINX
 
 C:\Users\user18\Documents\Projet_A_ITS>vagrant ssh nginx
 
