@@ -18,7 +18,7 @@ On va donc mettre en place 3 machines qui seront configurées via un script Vagr
 
 # Problématique  
 Comme nous disposions d'un temps limité, nous nous sommes répartis les tâches à effectuer de manière à disposer d'une solution fonctionnelle au bout d'une semaine de développement.  
-Un déroulé des actions entreprises par chacun est disponible [en seconde partie de ce readme](#Jour 1)  
+Un déroulé des actions entreprises par chacun est disponible [en seconde partie de ce readme](#jour-1)  
 
 # Installation
 ## Pré-requis
