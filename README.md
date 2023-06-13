@@ -150,6 +150,13 @@ sudo apt update
 sudo apt install nginx
 ```
 
+## Configuration de LoadBalancer, Reverse Proxy et de Certificat Autosigné
+On comence avec LoadBalancer, on configure fichier nginx.conf
+Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. 
+Lorsque la méthode d'équilibrage de la charge n'est pas spécifiquement configurée, 
+elle est par défaut la méthode round-robin.Toutes les demandes sont transmises 
+au groupe de serveurs "mediawiki", et nginx applique la répartition de charge HTTP pour distribuer les demandes.
+
 # LVM ( Logical Volume Management )
 
 Avant d'implémenter une solution de stockage LVM, nous avons créé un disque dur virtuel supplémentaire avec la taille 8GB et sur la VM Mediawiki2.
