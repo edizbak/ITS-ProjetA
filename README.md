@@ -153,9 +153,8 @@ sudo apt install nginx
 ## Configuration de LoadBalancer, Reverse Proxy et de Certificat Autosigné
 On comence avec LoadBalancer, on configure fichier nginx.conf
 Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. 
-Lorsque la méthode d'équilibrage de la charge n'est pas spécifiquement configurée, 
-elle est par défaut la méthode round-robin.Toutes les demandes sont transmises 
-au groupe de serveurs "mediawiki", et nginx applique la répartition de charge HTTP pour distribuer les demandes.
+Le serveur auquel une requête est envoyée est déterminé à partir de l'adresse IP du client.  
+La directive *IP_hash* garantit que les requêtes provenant de la même adresse parviennent au même serveur, sauf si celui-ci n'est pas disponible. Toutes les demandes sont transmises au groupe de serveurs "mediawiki", et **Nginx** applique la répartition de charge HTTP pour distribuer les demandes.
 
 # LVM ( Logical Volume Management )
 
