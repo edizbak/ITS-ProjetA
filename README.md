@@ -62,28 +62,31 @@ Si on connaît déjà le titre du fichier de backup à restaurer, on peut la lan
 ```
 ./db_restore.sh <nom_de_fichier>
 ```  
-* Il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
-S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir le FS en même temps avec l'option -r. Exemple, avec la syntaxe:  
+* Concernant **LVM** ( Logical Volume Management ), il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
+S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir le FS en même temps avec l'option -r. Il faut exécuter dans le terminal la commande:
+
+Exemple, avec la syntaxe:  
 ```sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>```  
 exemple:  
 ```
 sudo lvextend -r -l 10%VG /dev/vg1/part2  
 sudo lvextend -r -L +1G /dev/vg1/part2
 ```  
-S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:  
-1. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM  
+S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
+1. Il faut créer un nouveau disque dur virtuel supplémentaire
+2. On déclare le nouveau disque dur virtuel (/dev/sde) en Volume Physique LVM  
 ```
  sudo pvcreate /dev/sde
 ```  
-2. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
+3. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
 ```
  sudo vgextend vg1 /dev/sde
 ```
-3. On peut maintenant étendre la taille des Volumes Logiques, par exemple: 
+4. On peut maintenant étendre la taille des Volumes Logiques, par exemple: 
 ```
-sudo lvextend --size +10G /dev/vg1/part2
+sudo lvextend --size +1G /dev/vg1/part2
 ```  
-4. Et ensuite augmenter la taille de la partition qu’ils contiennent :  
+5. Et ensuite augmenter la taille de la partition qu’ils contiennent :  
 ```
 sudo resize2fs /dev/vg1/part2
 ```
@@ -147,7 +150,7 @@ sudo apt update
 sudo apt install nginx
 ```
 
-# LVM
+# LVM ( Logical Volume Management )
 
 Avant d'implémenter une solution de stockage LVM, nous avons créé un disque dur virtuel supplémentaire avec la taille 8GB et sur la VM Mediawiki2.
 
@@ -157,11 +160,12 @@ Voir dans le Vagrantfile les lignes 46 jusqu'à 49.
 
 Ensuite, nous avons implémenté une solution de stockage LVM sur la VM Mediawiki2 avec:
 
-1 disque dur virtuel en Volume Physique LVM dedans le VG (Volume Group)
+1 disque dur virtuel en Volume Physique LVM dedans le VG (Volume Group) et 2 LV (Logical Volume) dedans le VG (Volume Group).
 
-et 2 LV (Logical Volume) dedans le VG (Volume Group).
+Dans la dernière étape, nous avons modifié le fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation.
 
-Dans la dernière étape, nous avons modifié le fichier /etc/fstab pour activer le montage automatique des partitions au démarrage du système d'exploitation
+
+
 
 LVMLOGS_FILE="/tmp/mise_en_place_lvm.log"
 
@@ -183,9 +187,9 @@ then
 
 
 
- # Installation des commandes de LVM
+ # Installation du package LVM
 
- echo "Installation des commandes de LVM." >> ${LVMLOGS_FILE}
+ echo "Installation du package LVM." >> ${LVMLOGS_FILE}
 
  apt-get -y install lvm2
 
@@ -345,46 +349,6 @@ then
 
 fi
 
-   
-S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir
-
- le FS en même temps avec l'option -r. Exemple, avec la syntaxe:
-
-sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>
-
-
-
-exemple:
-
-sudo lvextend -r -l 10%VG /dev/vg1/part2
-
-sudo lvextend -r -L +1G /dev/vg1/part2
-
-
-
-
-
-S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
-
-1. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM
-
- sudo pvcreate /dev/sde
-
-2. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
-
- sudo vgextend vg1 /dev/sde
-
-3. On peut maintenant étendre la taille des Volumes Logiques
-
- exemple: 
-
- sudo lvextend --size +10G /dev/vg1/part2
-
-4. Et ensuite augmenter la taille de la partition, qu’ils contiennent
-
- sudo resize2fs /dev/vg1/part2
-
-
 
 
 
@@ -392,34 +356,12 @@ S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut a
 
 
 
-Le défi rencontré: il arrive parfois (aprés exécuter plusieurs fois les commandes vagrant up et vagrant destroy) avoir un erreur
-
-  pendant la création d'un disque dur virtuel de façon automatique via le lignes de commandes placées dans le fichier Vagrantfile,
-
-  que nous informe que le nom du nouveau disque dur virtuel que nous voulons créer
-
-  a déjà été créé. Voir la photo en pièce jointe du l'erreur. Dans cette situation, il est nécessaire que les lignes de commande
-
-  pour créer de façon automatique un disque dur virtuel supplémentairene soient pas placées dans une boucle (dans le fichier Vagrantfile). Si après avoir mis
-
-  en dehors de la boucle les lignes de commande pour créer de façon automatique un disque dur virtuel supplémentaire l'erreur persiste, dans cette situation
-
-  il faut récupérer une liste complète de tous les disques durs virtuels que sont stockés dans la configuration globale de Virtual Box,
-
-  (noms de fichiers et les UUID de chaque disque virtuel) à l'aide de la commande suivante :
-
-
-
-vboxmanage list hdds
-
-
-
-  Et ensuite on peut supprimer une entrée de la liste et rendre à nouveau disponible le nom du fichier, avec la commande suivante :
-
-
-
-vboxmanage closemedium disk <uuid> --delete
-
-
-
-  Après éxecuter cette commande, nous pouvons essayer de créer à nouveau un nouveau disque dur virtuel avec le même nom de fichier.
+Le défi rencontré: il arrive parfois (aprés exécuter plusieurs fois les commandes vagrant up et vagrant destroy) avoir un erreur pendant la création d'un disque dur virtuel de façon automatique via le lignes de commandes placées dans le fichier Vagrantfile, que nous informe que le nom du nouveau disque dur virtuel que nous voulons créer a déjà été créé. Voir la photo en pièce jointe du l'erreur. Dans cette situation, il faut récupérer une liste complète de tous les disques durs virtuels que sont stockés dans la configuration globale de Virtual Box, (noms de fichiers et les UUID de chaque disque virtuel) à l'aide de la commande suivante :
+   
+   vboxmanage list hdds
+   
+   Et ensuite on peut supprimer une entrée de la liste et rendre à nouveau disponible le nom du fichier, avec la commande suivante :
+   
+   vboxmanage closemedium disk <uuid> --delete
+   
+   Après éxecuter cette commande, nous pouvons essayer de créer à nouveau un nouveau disque dur virtuel avec le même nom de fichier.
