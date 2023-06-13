@@ -157,7 +157,7 @@ Le serveur auquel une requête est envoyée est déterminé à partir de l'adres
 Cela permet de mettre un serveur en réserve et d'effectuer toutes les requêtes avec un seul serveur. Le serveur backup sera utilisé en cas de défaillance du serveur principal.
 
 On continue de configurer le reverse proxy, on se deplace vers le dosier avec le fichier *default.conf* et on fait la redirection du location / vers proxy_pass /mediawiki.  
-## Creation des Clé privée, CSR (Certificate Signing Request) et Certificat auto-signé.
+Creation des Clé privée, CSR (Certificate Signing Request) et Certificat auto-signé.
 Avant de configurer le serveur https, nous devons préparer une clé privée, une demande de signature de certificat (CSR) et un certificat signé avec sa propre clé privée.
 Nous créons la clé privée et la CSR (Certificate Signing Request) à l'aide d'une seule commande. 
 Nous voulons que notre clé privée ne soit pas chiffrée, donc on ajoute l'option -nodes.
@@ -165,7 +165,8 @@ Avec help -subj, nous pouvons fournir des réponses aux questions interactives n
 Un certificat auto-signé est un certificat signé avec sa propre clé privée. Il peut être utilisé pour crypter des données aussi bien que les certificats signés par l'autorité de certification, mais un avertissement indiquant que le certificat n'est pas fiable s'affichera à l'écran.
 Pour des raisons de sécurité, nous devons conserver les droits au minimum requis pour assurer la fonction du serveur https.
 
-Configuration de serveur https. On se deplace ver le dosier de fichier default.conf. On ajoute listen 443 ssl.
+Configuration de serveur https. 
+On se deplace ver le dosier de fichier default.conf. On ajoute listen 443 ssl.
 Pour minimiser le nombre d'opérations le SSL handshake et économiser les ressources CPU:
 1) on a activé les connexions keepalive et augmenté timeouts pour envoyer plusieurs demandes via une seule connexion;
 2) réutiliser les paramètres de la session SSL afin d'éviter les négociations SSL pour les connexions parallèles et ultérieures.
