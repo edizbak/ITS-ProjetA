@@ -82,7 +82,7 @@ S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut a
 ```
 4. On peut maintenant étendre la taille des Volumes Logiques, par exemple: 
 ```
-sudo lvextend --size +10G /dev/vg1/part2
+sudo lvextend --size +1G /dev/vg1/part2
 ```  
 5. Et ensuite augmenter la taille de la partition qu’ils contiennent :  
 ```
@@ -384,7 +384,7 @@ S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut a
 
  exemple: 
 
- sudo lvextend --size +10G /dev/vg1/part2
+ sudo lvextend --size +1G /dev/vg1/part2
 
 5. Et ensuite augmenter la taille de la partition, qu’ils contiennent
 
