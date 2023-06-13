@@ -355,42 +355,6 @@ then
 
 fi
 
-   
-S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir le FS en même temps avec l'option -r. Exemple, avec la syntaxe:
-
-sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>
-
-
-exemple:
-
-sudo lvextend -r -l 10%VG /dev/vg1/part2
-
-sudo lvextend -r -L +1G /dev/vg1/part2
-
-
-
-S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
-
-1. Il faut créer un nouveau disque dur virtuel
-2. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM
-
- sudo pvcreate /dev/sde
-
-3. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
-
- sudo vgextend vg1 /dev/sde
-
-4. On peut maintenant étendre la taille des Volumes Logiques
-
- exemple: 
-
- sudo lvextend --size +1G /dev/vg1/part2
-
-5. Et ensuite augmenter la taille de la partition, qu’ils contiennent
-
- sudo resize2fs /dev/vg1/part2
-
-
 
 
 
