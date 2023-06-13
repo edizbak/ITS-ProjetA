@@ -62,7 +62,7 @@ Si on connaît déjà le titre du fichier de backup à restaurer, on peut la lan
 ```
 ./db_restore.sh <nom_de_fichier>
 ```  
-* Concernant **LVM**, il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
+* Concernant **LVM** ( Logical Volume Management ), il est également possible d'augmenter la taille du volume logique configuré sur *mediawiki2* en suivant la procédure suivante :  
 S'il y a suffisamment d'espace de stockage disponible sur le VG: dans ce cas il est possible de redimensionner le LV et d'agrandir le FS en même temps avec l'option -r. Exemple, avec la syntaxe:  
 ```sudo lvextend -r -L +<taille_ajoutee> <nom_volume_logique>```  
 exemple:  
@@ -155,7 +155,7 @@ vagrant@nginx:~$ curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
 
 vagrant@nginx:~$ gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
 
-# LVM
+# LVM ( Logical Volume Management )
 
 Avant d'implémenter une solution de stockage LVM, nous avons créé un disque dur virtuel supplémentaire avec la taille 8GB et sur la VM Mediawiki2.
 
