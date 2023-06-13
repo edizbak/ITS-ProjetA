@@ -70,20 +70,21 @@ exemple:
 sudo lvextend -r -l 10%VG /dev/vg1/part2  
 sudo lvextend -r -L +1G /dev/vg1/part2
 ```  
-S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:  
-1. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM  
+S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
+1. Il faut créer un nouveau disque dur virtuel
+2. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM  
 ```
  sudo pvcreate /dev/sde
 ```  
-2. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
+3. Puis on ajoute le PV au Groupe de Volumes LVM (vg1)
 ```
  sudo vgextend vg1 /dev/sde
 ```
-3. On peut maintenant étendre la taille des Volumes Logiques, par exemple: 
+4. On peut maintenant étendre la taille des Volumes Logiques, par exemple: 
 ```
 sudo lvextend --size +10G /dev/vg1/part2
 ```  
-4. Et ensuite augmenter la taille de la partition qu’ils contiennent :  
+5. Et ensuite augmenter la taille de la partition qu’ils contiennent :  
 ```
 sudo resize2fs /dev/vg1/part2
 ```
