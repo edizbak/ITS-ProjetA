@@ -18,9 +18,10 @@ echo "Etape 1. On comence avec LoadBalancer, on configure fichier nginx.conf"
 # On se deplace ver le dosier de fichier nginx.conf
 cd /etc/nginx
 # Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. 
-# Lorsque la méthode d'équilibrage de la charge n'est pas spécifiquement configurée, 
-# elle est par défaut la méthode round-robin.Toutes les demandes sont transmises 
-# au groupe de serveurs "mediawiki", et nginx applique la répartition de charge HTTP pour distribuer les demandes.
+# On ajoute les adresses des deux serveurs dans l'upstream. Le serveur auquel une requête est envoyée est déterminé à partir
+# de l'adresse IP du client. La directive IP_hash garantit que les requêtes provenant de la même adresse parviennent au même serveur, 
+# sauf si celui-ci n'est pas disponible. Toutes les demandes sont transmises au groupe de serveurs "mediawiki", et Nginx applique 
+# la répartition de charge HTTP pour distribuer les demandes.
 sed -i -E '14 a\ ' nginx.conf
 sed -i -E '15 s/[[:space:]]*/    upstream mediawiki {/' nginx.conf
 sed -i -E '15 a\ ' nginx.conf
@@ -40,6 +41,7 @@ sed -i -E '20 s/[[:space:]]*/    }/' nginx.conf
 echo "Etape 2.  On continue de confuguré reverse proxy..."
 # On se deplace ver le dosier de fichier default.conf
 cd /etc/nginx/conf.d 
+# on fait la redirection du location / vers proxy_pass /mediawiki
 sed -i -E '3 s/.+/#     server_name  localhost;/' default.conf
 sed -i -E '7 a\ ' default.conf
 sed -i -E '8 s/[[:space:]]*/        proxy_pass http:\/\/mediawiki;/' default.conf
@@ -66,10 +68,11 @@ chmod 644 /etc/ssl/domain.csr
 chmod 644 /etc/ssl/certs/domain.crt
 
 echo "Etap 4. Configuration de serveur https"
-# On se deplace ver le dosier de fichier default.conf
+# On se deplace ver le dosier de fichier default.conf, On ajoute listen 443 ssl.
 # Pour minimiser le nombre d'opérations  SSL handshake est econimiser resource CPU:
 # 1) on a activer les connexions keepalive et augmenter timeouts pour envoyer plusieurs demandes via une seule connexion;
 # 2) réutiliser les paramètres de la session SSL afin d'éviter les négociations SSL pour les connexions parallèles et ultérieures.
+# On sauvgarde ssl_certificate et ssl_certificate_key dans le repertoir /etc/ssl. On sélectionne les protocoles et ciphers à supporter dans ssl_protocols et ssl_ciphers.
 cd /etc/nginx/conf.d 
 sed -i -E '2 a\ ' default.conf
 sed -i -E '3 s/[[:space:]]*/    listen       443 ssl;/' default.conf
