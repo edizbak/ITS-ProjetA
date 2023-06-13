@@ -71,8 +71,8 @@ sudo lvextend -r -l 10%VG /dev/vg1/part2
 sudo lvextend -r -L +1G /dev/vg1/part2
 ```  
 S'il n'y a pas suffisamment d'espace de stockage disponible sur le VG: on peut ajouter un PV et réaliser l'extension du VG:
-1. Il faut créer un nouveau disque dur virtuel
-2. On déclare le disque dur virtuel (/dev/sde) en Volume Physique LVM  
+1. Il faut créer un nouveau disque dur virtuel supplémentaire
+2. On déclare le nouveau disque dur virtuel (/dev/sde) en Volume Physique LVM  
 ```
  sudo pvcreate /dev/sde
 ```  
