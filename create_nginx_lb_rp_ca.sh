@@ -24,16 +24,18 @@ cd /etc/nginx
 sed -i -E '14 a\ ' nginx.conf
 sed -i -E '15 s/[[:space:]]*/    upstream mediawiki {/' nginx.conf
 sed -i -E '15 a\ ' nginx.conf
-sed -i -E '16 s/[[:space:]]*/        server 192.168.99.31:80;/' nginx.conf
+sed -i -E '16 s/[[:space:]]*/        ip_hash;/' nginx.conf
 sed -i -E '16 a\ ' nginx.conf
-sed -i -E '17 s/[[:space:]]*/        server 192.168.99.32:80;/' nginx.conf
+sed -i -E '17 s/[[:space:]]*/        server 192.168.99.31:80;/' nginx.conf
+sed -i -E '17 a\ ' nginx.conf
+sed -i -E '18 s/[[:space:]]*/        server 192.168.99.32:80;/' nginx.conf
 # Avec "backup" nous ajoutons en mode desactivé une chaîne qui peut être activée ultérieurement si nécessaire en manuel. 
 # Cela permet de mettre un serveur en réserve et d'effectuer toutes les requets avec un seul serveur.
 # Le serveur backup sera utilisée en cas de défaillance du serveur principal ; 
-sed -i -E '17 a\ ' nginx.conf
-sed -i -E '18 s/[[:space:]]*/#        server 192.168.99.32:80 backup;/' nginx.conf
 sed -i -E '18 a\ ' nginx.conf
-sed -i -E '19 s/[[:space:]]*/    }/' nginx.conf
+sed -i -E '19 s/[[:space:]]*/#        server 192.168.99.32:80 backup;/' nginx.conf
+sed -i -E '19 a\ ' nginx.conf
+sed -i -E '20 s/[[:space:]]*/    }/' nginx.conf
 
 echo "Etape 2.  On continue de confuguré reverse proxy..."
 # On se deplace ver le dosier de fichier default.conf
