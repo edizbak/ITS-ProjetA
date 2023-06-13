@@ -153,9 +153,7 @@ sudo apt install nginx
 ## Configuration de LoadBalancer, Reverse Proxy et de Certificat Autosigné
 On comence avec LoadBalancer, on configure fichier nginx.conf
 Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. On ajout les adresses des deux serveurs dans le upstream.
-Le serveur auquel une requête est envoyée est déterminé à partir de l'adresse IP du client.  
-La directive *IP_hash* garantit que les requêtes provenant de la même adresse parviennent au même serveur, sauf si celui-ci n'est pas disponible. Toutes les demandes sont transmises au groupe de serveurs "mediawiki", et **Nginx** applique la répartition de charge HTTP pour distribuer les demandes.
-Avec command "backup" nous ajoutons en mode desactivé une chaîne qui peut être activée ultérieurement si nécessaire en manuel. 
+Le serveur auquel une requête est envoyée est déterminé à partir de l'adresse IP du client.  La directive *IP_hash* garantit que les requêtes provenant de la même adresse parviennent au même serveur, sauf si celui-ci n'est pas disponible. Toutes les demandes sont transmises au groupe de serveurs "mediawiki", et **Nginx** applique la répartition de charge HTTP pour distribuer les demandes. Avec command "backup" nous ajoutons en mode desactivé une chaîne qui peut être activée ultérieurement si nécessaire en manuel. 
 Cela permet de mettre un serveur en réserve et d'effectuer toutes les requets avec un seul serveur. Le serveur backup sera utilisée en cas de défaillance du serveur principal.
 
 On continue de confuguré reverse proxy, on se deplace ver le dosier avec le fichier default.conf et on fait la redirection du location / ver proxy_pass /mediawiki.
