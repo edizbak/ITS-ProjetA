@@ -18,7 +18,7 @@ On va donc mettre en place 3 machines qui seront configurées via un script Vagr
 
 # Problématique  
 Comme nous disposions d'un temps limité, nous nous sommes répartis les tâches à effectuer de manière à disposer d'une solution fonctionnelle au bout d'une semaine de développement.  
-Un déroulé des actions entreprises par chacun est disponible [en seconde partie de ce readme](#part2)  
+Un déroulé des actions entreprises par chacun est disponible [en seconde partie de ce readme](#Jour 1)  
 
 # Installation
 ## Pré-requis
@@ -120,8 +120,8 @@ Probablement à proscrire en contexte réel si on n'est pas certain de l'identit
 On relance l'exécution du Vagrantfile pour tomber sur une nouvelle erreur : 
 ![Alt text](image.png)2nde Erreur Vagrant
 
-Celle-ci semble provoquée par le délai induit par l'UAC Windows, erreur bénigne donc. On détruit l'environnement, on relance, et la troisième tentative aboutit enfin :
-![Alt text](image-1.png)
+Celle-ci semble provoquée par le délai induit par l'UAC Windows, erreur bénigne donc. On détruit l'environnement, on relance, et la troisième tentative aboutit enfin :  
+![Alt text](image-1.png)  
 
 On s'auto-congratule modérément et on commence les recherches sur l'installation de Mediawiki pour le lendemain... Ça va être sympa, on va devoir installer PHP, une base de donnée, extraire plein de fichiers, bref il va y avoir de quoi faire !  
 
@@ -188,7 +188,7 @@ Dans la dernière étape, nous avons modifié le fichier /etc/fstab pour activer
 
 
 
-
+```
 LVMLOGS_FILE="/tmp/mise_en_place_lvm.log"
 
 echo -e "You will find LVM provisionings logs below"  > ${LVMLOGS_FILE}
@@ -370,13 +370,8 @@ then
 
 
 fi
-
-
-
-
+```
 --------------------------------------------------------------------------------
-
-
 
 Le défi rencontré: il arrive parfois (aprés exécuter plusieurs fois les commandes vagrant up et vagrant destroy) avoir un erreur pendant la création d'un disque dur virtuel de façon automatique via le lignes de commandes placées dans le fichier Vagrantfile, que nous informe que le nom du nouveau disque dur virtuel que nous voulons créer a déjà été créé. Voir la photo en pièce jointe du l'erreur. Dans cette situation, il faut récupérer une liste complète de tous les disques durs virtuels que sont stockés dans la configuration globale de Virtual Box, (noms de fichiers et les UUID de chaque disque virtuel) à l'aide de la commande suivante :
    
