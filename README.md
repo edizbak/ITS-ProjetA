@@ -152,9 +152,26 @@ sudo apt install nginx
 
 ## Configuration de LoadBalancer, Reverse Proxy et de Certificat Autosigné
 On comence avec LoadBalancer, on configure fichier nginx.conf
-Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. 
+Il y a 2 instances de la même application qui tournent sur VM#2 et VM#3. On ajout les adresses des deux serveurs dans le upstream.
 Le serveur auquel une requête est envoyée est déterminé à partir de l'adresse IP du client.  
 La directive *IP_hash* garantit que les requêtes provenant de la même adresse parviennent au même serveur, sauf si celui-ci n'est pas disponible. Toutes les demandes sont transmises au groupe de serveurs "mediawiki", et **Nginx** applique la répartition de charge HTTP pour distribuer les demandes.
+Avec command "backup" nous ajoutons en mode desactivé une chaîne qui peut être activée ultérieurement si nécessaire en manuel. 
+Cela permet de mettre un serveur en réserve et d'effectuer toutes les requets avec un seul serveur. Le serveur backup sera utilisée en cas de défaillance du serveur principal.
+
+On continue de confuguré reverse proxy, on se deplace ver le dosier avec le fichier default.conf et on fait la redirection du location / ver proxy_pass /mediawiki.
+Creation des Clé privée, CSR (Certificate Signing Request) et Certificat auto-signé."
+Avant de configurer le serveur https, nous devons préparer une clé privée, une demande de signature de certificat (CSR) et un certificat signé avec sa propre clé privée.
+Nous créons la clé privée et la CSR (Certificate Signing Request) à l'aide d'une seule commande. 
+Nous voulons que notre clé privée ne soit pas chiffrée, donc on ajout l'option -nodes.
+Avec help -subj, nous pouvons fournir des réponses aux questions interactives nécessaires pour obtenir la clé privée et le CSR.
+Un certificat auto-signé est un certificat signé avec sa propre clé privée. Il peut être utilisé pour crypter des données aussi bien que les certificats signés par l'autorité de certification, mais un avertissement indiquant que le certificat n'est pas fiable s'affichera à l'écran.
+Pour des raisons de sécurité, nous devons conserver les droits au minimum requis pour assurer la fonction du serveur https
+
+Configuration de serveur https. On se deplace ver le dosier de fichier default.conf. On ajout listen 443 ssl.
+Pour minimiser le nombre d'opérations  SSL handshake est econimiser resource CPU:
+1) on a activer les connexions keepalive et augmenter timeouts pour envoyer plusieurs demandes via une seule connexion;
+2) réutiliser les paramètres de la session SSL afin d'éviter les négociations SSL pour les connexions parallèles et ultérieures.
+On sauvgarde ssl_certificate et ssl_certificate_key dans le repertoir /etc/ssl. On selection les protocols et ciphers are suporter dans  ssl_protocols et ssl_ciphers.
 
 # LVM ( Logical Volume Management )
 
