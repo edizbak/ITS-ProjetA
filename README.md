@@ -169,6 +169,7 @@ Configuration de serveur https. On se deplace ver le dosier de fichier default.c
 Pour minimiser le nombre d'opérations  SSL handshake est econimiser resource CPU:
 1) on a activer les connexions keepalive et augmenter timeouts pour envoyer plusieurs demandes via une seule connexion;
 2) réutiliser les paramètres de la session SSL afin d'éviter les négociations SSL pour les connexions parallèles et ultérieures.
+
 On sauvgarde ssl_certificate et ssl_certificate_key dans le repertoir /etc/ssl. On selection les protocols et ciphers are suporter dans  ssl_protocols et ssl_ciphers.
 
 # LVM ( Logical Volume Management )
